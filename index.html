@@ -18,6 +18,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transform: scaleX(-1); /* Corrige el efecto espejo */
         }
         #marco {
             position: absolute;
@@ -71,12 +72,22 @@
         botonCaptura.addEventListener('click', () => {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
+            contexto.translate(canvas.width, 0); // Voltear horizontalmente para corregir el espejo
+            contexto.scale(-1, 1);
             contexto.drawImage(video, 0, 0, canvas.width, canvas.height);
+            contexto.setTransform(1, 0, 0, 1, 0, 0); // Restaurar el contexto
             contexto.drawImage(marco, 0, 0, canvas.width, canvas.height);
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL('image/png');
-            link.download = 'foto-con-marco.png';
-            link.click();
+            
+            // Obtener fecha y hora actual para el nombre del archivo
+            const fecha = new Date();
+            const nombreArchivo = `${fecha.getFullYear()}-${fecha.getMonth() + 1}-${fecha.getDate()}_${fecha.getHours()}-${fecha.getMinutes()}-${fecha.getSeconds()}.jpg`;
+            
+            canvas.toBlob((blob) => {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = nombreArchivo;
+                link.click();
+            }, 'image/jpeg', 1.0);
         });
     </script>
 </body>
