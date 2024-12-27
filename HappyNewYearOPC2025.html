@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foto con Marco</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        #video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        #marco {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        #boton-captura {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 70px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            border: 5px solid rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+        }
+        #canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <video id="video" autoplay playsinline></video>
+    <img id="marco" src="Marco-OPC.png" alt="Marco">
+    <div id="boton-captura"></div>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const video = document.getElementById('video');
+        const marco = document.getElementById('marco');
+        const canvas = document.getElementById('canvas');
+        const botonCaptura = document.getElementById('boton-captura');
+        const contexto = canvas.getContext('2d');
+
+        // Acceder a la cámara
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+            .then(stream => {
+                video.srcObject = stream;
+                video.play();
+            })
+            .catch(err => {
+                console.error("No se pudo acceder a la cámara", err);
+            });
+
+        // Capturar la foto con el marco
+        botonCaptura.addEventListener('click', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            contexto.drawImage(video, 0, 0, canvas.width, canvas.height);
+            contexto.drawImage(marco, 0, 0, canvas.width, canvas.height);
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = 'foto-con-marco.png';
+            link.click();
+        });
+    </script>
+</body>
+</html>
